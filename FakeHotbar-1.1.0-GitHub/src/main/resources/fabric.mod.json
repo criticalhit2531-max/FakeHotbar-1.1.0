@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "fakehotbar",
+  "version": "${version}",
+  "name": "Fake Hotbar",
+  "description": "Reorders the visual hotbar without changing the real inventory slot order.",
+  "authors": ["Fake Hotbar"],
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "dev.fakehotbar.FakeHotbarClient"
+    ]
+  },
+  "mixins": [
+    {
+      "config": "fakehotbar.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=0.18.0",
+    "minecraft": "1.21.11",
+    "java": ">=21",
+    "fabric-api": ">=0.141.5"
+  }
+}
