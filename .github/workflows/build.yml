@@ -24,18 +24,40 @@ jobs:
           distribution: temurin
           java-version: '21'
 
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '9.6.0'
+      - name: Find Gradle project
+        id: project
+        shell: bash
+        run: |
+          echo "Searching for Gradle project..."
 
-      - name: Build mod JAR
-        run: gradle --no-daemon clean build
+          PROJECT_FILE=$(find . -type f -name "settings.gradle" \
+            -not -path "*/.gradle/*" | head -n 1)
+
+          if [ -z "$PROJECT_FILE" ]; then
+            PROJECT_FILE=$(find . -type f -name "build.gradle" \
+              -not -path "*/.gradle/*" | head -n 1)
+          fi
+
+          if [ -z "$PROJECT_FILE" ]; then
+            echo "ERROR: Gradle project not found!"
+            echo "Repository file structure:"
+            find . -maxdepth 4 -type f
+            exit 1
+          fi
+
+          PROJECT_DIR=$(dirname "$PROJECT_FILE")
+
+          echo "Gradle project found: $PROJECT_DIR"
+          echo "project_dir=$PROJECT_DIR" >> "$GITHUB_OUTPUT"
+
+      - name: Build Fake Hotbar
+        run: gradle --no-daemon -p "${{ steps.project.outputs.project_dir }}" clean build
 
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
           name: FakeHotbar-1.1.0
-          path: build/libs/fakehotbar-1.1.0.jar
+          path: |
+            **/build/libs/fakehotbar-1.1.0.jar
           if-no-files-found: error
           retention-days: 30
